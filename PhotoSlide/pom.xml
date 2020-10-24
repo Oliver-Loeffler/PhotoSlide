@@ -6,12 +6,12 @@
     <version>1.0-SNAPSHOT</version>        
     
     <properties>
-        <javafx.version>15</javafx.version>
+        <javafx.version>15.0.1</javafx.version>
         <mainClass>org.photoslide.App</mainClass>
         <moduleName>PhotoSlide</moduleName>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>14</maven.compiler.source>
-        <maven.compiler.target>14</maven.compiler.target>
+        <maven.compiler.source>15</maven.compiler.source>
+        <maven.compiler.target>15</maven.compiler.target>
     </properties>
     
     <repositories>
@@ -82,7 +82,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <release>14</release>
+                    <release>${maven.compiler.target}</release>
                 </configuration>
             </plugin>
             <plugin>
@@ -215,26 +215,179 @@
                                     <moduleInfoSource>
                                         open module jai.imageio.core {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
                                         
-                                        requires java.desktop;
-                                            
-                                        exports com.github.jaiimageio.impl.common;                                         
-                                        exports com.github.jaiimageio.impl.plugins.bmp;
-                                        exports com.github.jaiimageio.impl.plugins.clib;
-                                        exports com.github.jaiimageio.impl.plugins.gif;
-                                        exports com.github.jaiimageio.impl.plugins.jpeg;
-                                        exports com.github.jaiimageio.impl.plugins.pcx;
-                                        exports com.github.jaiimageio.impl.plugins.png;
-                                        exports com.github.jaiimageio.impl.plugins.raw;
-                                        exports com.github.jaiimageio.impl.plugins.tiff;
-                                        exports com.github.jaiimageio.impl.stream;
-                                        exports com.github.jaiimageio.plugins.bmp;
-                                        exports com.github.jaiimageio.plugins.pnm;
-                                        exports com.github.jaiimageio.plugins.tiff;
-                                        exports com.github.jaiimageio.stream;                                        
+                                        requires transitive java.desktop;
+                                        requires transitive java.xml;                                                                                
+
+                                        provides javax.imageio.spi.ImageInputStreamSpi with
+                                        com.github.jaiimageio.impl.stream.ChannelImageInputStreamSpi;
+                                        provides javax.imageio.spi.ImageOutputStreamSpi with
+                                        com.github.jaiimageio.impl.stream.ChannelImageOutputStreamSpi;
+                                        provides javax.imageio.spi.ImageReaderSpi with
+                                        com.github.jaiimageio.impl.plugins.wbmp.WBMPImageReaderSpi,
+                                        com.github.jaiimageio.impl.plugins.bmp.BMPImageReaderSpi,
+                                        com.github.jaiimageio.impl.plugins.pcx.PCXImageReaderSpi,
+                                        com.github.jaiimageio.impl.plugins.pnm.PNMImageReaderSpi,
+                                        com.github.jaiimageio.impl.plugins.raw.RawImageReaderSpi,
+                                        com.github.jaiimageio.impl.plugins.tiff.TIFFImageReaderSpi;
+                                        provides javax.imageio.spi.ImageWriterSpi with
+                                        com.github.jaiimageio.impl.plugins.wbmp.WBMPImageWriterSpi,
+                                        com.github.jaiimageio.impl.plugins.bmp.BMPImageWriterSpi,
+                                        com.github.jaiimageio.impl.plugins.gif.GIFImageWriterSpi,
+                                        com.github.jaiimageio.impl.plugins.pcx.PCXImageWriterSpi,
+                                        com.github.jaiimageio.impl.plugins.pnm.PNMImageWriterSpi,
+                                        com.github.jaiimageio.impl.plugins.raw.RawImageWriterSpi,
+                                        com.github.jaiimageio.impl.plugins.tiff.TIFFImageWriterSpi;                                                                            
                                         }
                                     </moduleInfoSource>
-                                </module>                                                                          
-                            </modules>                                                                              
+                                </module>
+                                <module>
+                                    <artifact>
+                                        <groupId>com.twelvemonkeys.imageio</groupId>
+                                        <artifactId>imageio-core</artifactId>
+                                    </artifact>                                    
+                                    <moduleInfoSource>
+                                        open module imageio.core {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+                                        
+                                        requires common.image;
+                                        requires common.io;
+                                        requires common.lang;
+                                        requires java.datatransfer;
+
+                                        requires transitive java.desktop;
+                                        requires transitive java.xml;
+                                        
+                                        exports com.twelvemonkeys.imageio;
+                                        exports com.twelvemonkeys.imageio.color;
+                                        exports com.twelvemonkeys.imageio.spi;
+                                        exports com.twelvemonkeys.imageio.stream;
+                                        exports com.twelvemonkeys.imageio.util;
+                                                                                    
+                                        }
+                                    </moduleInfoSource>
+                                </module>
+                                <module>
+                                    <artifact>
+                                        <groupId>com.twelvemonkeys.imageio</groupId>
+                                        <artifactId>imageio-tiff</artifactId>
+                                    </artifact>                                    
+                                    <moduleInfoSource>
+                                        open module imageio.tiff {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+                                        
+                                        requires common.image;
+                                        requires common.io;
+                                        requires common.lang;
+
+                                        requires transitive imageio.core;
+                                        requires transitive imageio.metadata;
+                                        requires transitive java.desktop;
+                                        requires transitive java.xml;
+                                        
+                                        exports com.twelvemonkeys.imageio.plugins.tiff;
+
+                                        provides javax.imageio.spi.ImageReaderSpi with
+                                        com.twelvemonkeys.imageio.plugins.tiff.TIFFImageReaderSpi,
+                                        com.twelvemonkeys.imageio.plugins.tiff.BigTIFFImageReaderSpi;
+                                        provides javax.imageio.spi.ImageWriterSpi with
+                                        com.twelvemonkeys.imageio.plugins.tiff.TIFFImageWriterSpi;                                                                                                         
+                                        }
+                                    </moduleInfoSource>
+                                </module>
+                                <module>
+                                    <artifact>
+                                        <groupId>com.twelvemonkeys.imageio</groupId>
+                                        <artifactId>imageio-psd</artifactId>
+                                    </artifact>                                    
+                                    <moduleInfoSource>
+                                        open module imageio.psd {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+                                        
+                                        requires common.image;
+                                        requires common.io;
+                                        requires common.lang;
+                                        requires imageio.metadata;
+
+                                        requires transitive imageio.core;
+                                        requires transitive java.desktop;
+                                        requires transitive java.xml;
+                                        
+                                        exports com.twelvemonkeys.imageio.plugins.psd;
+
+                                        provides javax.imageio.spi.ImageReaderSpi with
+                                        com.twelvemonkeys.imageio.plugins.psd.PSDImageReaderSpi;                                                                                                        
+                                        }
+                                    </moduleInfoSource>
+                                </module>
+                                <module>
+                                    <artifact>
+                                        <groupId>com.twelvemonkeys.imageio</groupId>
+                                        <artifactId>imageio-metadata</artifactId>
+                                    </artifact>                                    
+                                    <moduleInfoSource>
+                                        open module imageio.metadata {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+                                        
+                                        requires common.lang;
+                                        requires imageio.core;
+                                        requires java.xml;
+
+                                        requires transitive java.desktop;
+                                        
+                                        exports com.twelvemonkeys.imageio.metadata;
+                                        exports com.twelvemonkeys.imageio.metadata.exif;
+                                        exports com.twelvemonkeys.imageio.metadata.iptc;
+                                        exports com.twelvemonkeys.imageio.metadata.jpeg;
+                                        exports com.twelvemonkeys.imageio.metadata.psd;
+                                        exports com.twelvemonkeys.imageio.metadata.tiff;
+                                        exports com.twelvemonkeys.imageio.metadata.xmp;                                        
+                                        }
+                                    </moduleInfoSource>
+                                </module> 
+                                <module>
+                                    <artifact>
+                                        <groupId>com.twelvemonkeys.common</groupId>
+                                        <artifactId>common-lang</artifactId>
+                                    </artifact>                                    
+                                    <moduleInfoSource>
+                                        open module common.lang {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+                                        
+                                        requires transitive java.desktop;
+                                        requires transitive java.sql;
+                                        
+                                        exports com.twelvemonkeys.lang;
+                                        exports com.twelvemonkeys.util;
+                                        }
+                                    </moduleInfoSource>
+                                </module>
+                                <module>
+                                    <artifact>
+                                        <groupId>com.twelvemonkeys.common</groupId>
+                                        <artifactId>common-io</artifactId>
+                                    </artifact>                                    
+                                    <moduleInfoSource>
+                                        open module common.io {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+                                        
+                                        requires transitive common.lang;
+                                        requires transitive java.desktop;
+                                        requires transitive java.xml;
+                                        
+                                        exports com.twelvemonkeys.io;
+                                        exports com.twelvemonkeys.io.enc;
+                                        exports com.twelvemonkeys.io.ole2;
+                                        exports com.twelvemonkeys.net;
+                                        exports com.twelvemonkeys.xml;
+                                        }
+                                    </moduleInfoSource>
+                                </module>
+                                <module>
+                                    <artifact>
+                                        <groupId>com.twelvemonkeys.common</groupId>
+                                        <artifactId>common-image</artifactId>
+                                    </artifact>                                    
+                                    <moduleInfoSource>
+                                        open module common.image {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+                                            exports com.twelvemonkeys.image;
+                                        }
+                                    </moduleInfoSource>
+                                </module>                                                                                                                                 
+                            </modules>                                                                             
                             <module>                                                                   
                                 <moduleInfo>
                                     <name>${moduleName}</name>
@@ -333,7 +486,34 @@
         </dependency>
         <dependency>
             <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-core</artifactId>
+            <version>3.6</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.twelvemonkeys.common</groupId>
+            <artifactId>common-lang</artifactId>
+            <version>3.6</version>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.common</groupId>
+            <artifactId>common-io</artifactId>
+            <version>3.6</version>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.common</groupId>
+            <artifactId>common-image</artifactId>
+            <version>3.6</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
             <artifactId>imageio-tiff</artifactId>
+            <version>3.6</version>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-psd</artifactId>
             <version>3.6</version>
         </dependency>
         <dependency>
@@ -383,7 +563,7 @@
                 </os>
             </activation>
             <properties>
-                <bundle.type>exe</bundle.type>
+                <bundle.type>msi</bundle.type>
                 <exec.executable>${java.home}\bin\java</exec.executable> 
                 <installericon>${project.resources[0].directory}\org\photoslide\img\win\pkgresource</installericon>
                 <icons>${project.resources[0].directory}\org\photoslide\img\win\PhotoSlide.ico</icons>                
@@ -458,8 +638,18 @@
                                         <module>org.reactfx</module>
                                         <module>icafe</module>
                                         <module>jai.imageio.core</module>
+                                        <module>imageio.core</module>
+                                        <module>imageio.tiff</module>
+                                        <module>imageio.psd</module>
+                                        <module>imageio.metadata</module>
+                                        <module>java.xml</module>                                        
+                                        <module>common.image</module>
+                                        <module>common.io</module>
+                                        <module>common.lang</module>
+                                        <module>java.datatransfer</module>
+                                        <module>java.sql</module>
                                         <module>org.slf4j</module>                                       
-                                    </modules>                                                                                                            
+                                    </modules>                                                                                                          
                                 </configuration>
                             </execution> 
                         </executions>
@@ -513,6 +703,8 @@
                                         <argument>--add-exports=javafx.graphics/com.sun.javafx.iio.common=PhotoSlide</argument>
                                         <argument>${param1}</argument>
                                         <argument>${param2}</argument>
+                                        <argument>${param3}</argument>
+                                        <argument>${param4}</argument>
                                         <argument>--module</argument>
                                         <argument>${moduleName}/${mainClass}</argument>
                                     </arguments>

@@ -67,6 +67,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaView;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.controlsfx.control.GridView;
 import org.controlsfx.control.PopOver;
@@ -172,7 +173,7 @@ public class LighttableController implements Initializable {
         ratingControl.setRating(0);
         sortOptions = FXCollections.observableArrayList("Filename", "Capture time", "File creation time");
         sortOrderComboBox.setItems(sortOptions);
-        sortOrderComboBox.getSelectionModel().selectFirst();        
+        sortOrderComboBox.getSelectionModel().selectFirst();
         executor = Executors.newSingleThreadExecutor(new ThreadFactoryPS("lightTableController"));
         executorParallel = Executors.newSingleThreadExecutor(new ThreadFactoryPS("lightTableControllerSelection"));
     }
@@ -491,13 +492,14 @@ public class LighttableController implements Initializable {
     @FXML
     private void stackButtonAction(ActionEvent event) {
         factory.getSelectedMediaItem().setVisible(false);
-        //factory.getSelectedMediaItem().setSize(0, 0);
-        factory.getSelectedCell().setVisible(false);
-        factory.getSelectedCell().setMaxSize(0, 0);
-        factory.getSelectedCell().setMinSize(0, 0);
-        factory.getSelectedCell().setPrefSize(0, 0);
+        factory.getSelectedMediaItem().setManaged(false);
+        factory.getSelectedMediaItem().requestFocus();
+        factory.getSelectedMediaItem().requestLayout();        
+        factory.getSelectedCell().setVisible(false);        
         factory.getSelectedCell().setManaged(false);
-        factory.getSelectedCell().requestLayout();
+        factory.getSelectedCell().requestLayout();                
+        imageGrid.requestFocus();
+        imageGrid.layout();
         imageGrid.requestLayout();
     }
 
@@ -735,7 +737,7 @@ public class LighttableController implements Initializable {
     private void copyButtonAction(ActionEvent event) {
         copyAction();
     }
-    
+
     @FXML
     private void pasteButtonAction(ActionEvent event) {
         pastAction();
@@ -749,12 +751,13 @@ public class LighttableController implements Initializable {
         final Clipboard clipboard = Clipboard.getSystemClipboard();
         final ClipboardContent content = new ClipboardContent();
         List<File> filesForClipboard = new ArrayList<>();
-        Alert confirmDiaglog = new Alert(Alert.AlertType.CONFIRMATION, "", ButtonType.NO ,ButtonType.YES);
+        Alert confirmDiaglog = new Alert(Alert.AlertType.CONFIRMATION, "", ButtonType.NO, ButtonType.YES);
         confirmDiaglog.setHeaderText("Do you want to transfer all media edits as well ?");
-        
+
         confirmDiaglog.getDialogPane().getStylesheets().add(
                 getClass().getResource("/org/photoslide/fxml/Dialogs.css").toExternalForm());
-        Optional<ButtonType> result = confirmDiaglog.showAndWait();        
+        Utility.centerChildWindowOnStage((Stage) confirmDiaglog.getDialogPane().getScene().getWindow(), (Stage) stackPane.getScene().getWindow());
+        Optional<ButtonType> result = confirmDiaglog.showAndWait();
         if (result.get() == ButtonType.YES) {
             list.stream().filter(c -> c.isSelected() == true).forEach((mfile) -> {
                 filesForClipboard.add(mfile.getPathStorage().toFile());
@@ -762,7 +765,7 @@ public class LighttableController implements Initializable {
             });
         } else {
             list.stream().filter(c -> c.isSelected() == true).forEach((mfile) -> {
-                filesForClipboard.add(mfile.getPathStorage().toFile());                
+                filesForClipboard.add(mfile.getPathStorage().toFile());
             });
         }
         content.putFiles(filesForClipboard);
@@ -773,7 +776,6 @@ public class LighttableController implements Initializable {
             util.hideNodeAfterTime(mainController.getStatusLabelLeft(), 3);
         });
     }
-    
 
     public void pastAction() {
         Platform.runLater(() -> {
@@ -840,10 +842,9 @@ public class LighttableController implements Initializable {
     public MainViewController getMainController() {
         return mainController;
     }
-    
-    public void resetLightTableView(){
+
+    public void resetLightTableView() {
         list.clear();
     }
-    
 
 }

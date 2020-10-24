@@ -37,11 +37,11 @@ import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.controlsfx.control.GridCell;
 import org.controlsfx.control.GridView;
 import org.kordamp.ikonli.javafx.FontIcon;
-import org.photoslide.datamodel.tiffsupport.TIFFSimpleSupport;
 
 /**
  *
@@ -210,6 +210,7 @@ public class MediaGridCellFactory implements Callback<GridView<MediaFile>, GridC
             DialogPane dialogPane = alert.getDialogPane();
             dialogPane.getStylesheets().add(
                     getClass().getResource("/org/photoslide/fxml/Dialogs.css").toExternalForm());
+            Utility.centerChildWindowOnStage((Stage)alert.getDialogPane().getScene().getWindow(), (Stage)grid.getScene().getWindow()); 
             alert.showAndWait();
             if (alert.getResult() == ButtonType.YES) {
                 selectedMediaItem.setDeleted(false);
@@ -319,15 +320,8 @@ public class MediaGridCellFactory implements Callback<GridView<MediaFile>, GridC
                             lightController.getMediaView().setVisible(false);
                             lightController.getImageProgress().setVisible(true);
                         });
-                        String url = selectedMediaItem.getImage().getUrl();
-                        if (selectedMediaItem.getName().toLowerCase().contains("tiff") || selectedMediaItem.getName().toLowerCase().contains("tif")) {
-                            img = new TIFFSimpleSupport().readImage(selectedMediaItem.getPathStorage().toUri());
-                            Platform.runLater(() -> {
-                                lightController.getImageProgress().setVisible(false);
-                            });
-                        } else {
-                            img = new Image(url, true);
-                        }
+                        String url = selectedMediaItem.getImage().getUrl();                        
+                        img = new Image(url, true);
                         Platform.runLater(() -> {
                             lightController.getDetailToolbar().setDisable(false);
                             lightController.getTitleLabel().textProperty().bind(selectedCell.getItem().getTitleProperty());
